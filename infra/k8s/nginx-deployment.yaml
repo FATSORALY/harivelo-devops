@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: production
+  labels:
+    app: harivelo
+    component: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: harivelo
+      component: nginx
+  template:
+    metadata:
+      labels:
+        app: harivelo
+        component: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: 240676008744.dkr.ecr.eu-west-3.amazonaws.com/harivelo-app-nginx:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          name: http
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 10
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-config
+      imagePullSecrets:
+      - name: regcred

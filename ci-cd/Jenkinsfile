@@ -1,0 +1,232 @@
+// Jenkinsfile - Déploiement depuis ECR existant
+pipeline {
+    agent any
+    
+    environment {
+        // Configuration AWS
+        AWS_ACCOUNT = "240676008744"
+        AWS_REGION = "eu-west-3"
+        ECR_URL = "${AWS_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        CLUSTER_NAME = "harivelo-prod-v5"
+        NAMESPACE = "production"
+        
+        // Application
+        APP_NAME = "harivelo-app"
+    }
+    
+    parameters {
+        string(
+            name: 'IMAGE_TAG',
+            defaultValue: 'latest',
+            description: 'Tag de l\'image Docker sur ECR (ex: latest, v1.0.0, 20240327-abc123)'
+        )
+        choice(
+            name: 'SERVICE',
+            choices: ['all', 'backend', 'frontend', 'nginx'],
+            description: 'Service à déployer'
+        )
+        booleanParam(
+            name: 'SKIP_HEALTH_CHECK',
+            defaultValue: false,
+            description: 'Ignorer la vérification de santé'
+        )
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                echo "📦 Pipeline de déploiement - Harivelo"
+                echo "Images source: ${ECR_URL}"
+                echo "Tag: ${params.IMAGE_TAG}"
+            }
+        }
+        
+        stage('Verify Images in ECR') {
+            steps {
+                echo "🔍 Vérification des images dans ECR..."
+                script {
+                    def services = params.SERVICE == 'all' ? ['backend', 'frontend', 'nginx'] : [params.SERVICE]
+                    
+                    for (service in services) {
+                        sh """
+                            echo "Vérification de ${APP_NAME}-${service}:${params.IMAGE_TAG}"
+                            aws ecr describe-images \
+                                --repository-name ${APP_NAME}-${service} \
+                                --image-ids imageTag=${params.IMAGE_TAG} \
+                                --region ${AWS_REGION} || {
+                                echo "❌ Image ${APP_NAME}-${service}:${params.IMAGE_TAG} non trouvée dans ECR"
+                                exit 1
+                            }
+                        """
+                    }
+                    echo "✅ Toutes les images existent dans ECR"
+                }
+            }
+        }
+        
+        stage('Configure Kubernetes') {
+            steps {
+                echo "🔧 Configuration de kubectl..."
+                sh """
+                    aws eks update-kubeconfig \
+                        --region ${AWS_REGION} \
+                        --name ${CLUSTER_NAME}
+                    kubectl get nodes
+                """
+            }
+        }
+        
+        stage('Deploy to Kubernetes') {
+            steps {
+                echo "🚀 Déploiement sur Kubernetes..."
+                script {
+                    if (params.SERVICE == 'all') {
+                        // Déployer tous les services
+                        sh """
+                            echo "Déploiement du backend..."
+                            kubectl set image deployment/backend \
+                                backend=${ECR_URL}/${APP_NAME}-backend:${params.IMAGE_TAG} \
+                                -n ${NAMESPACE}
+                            
+                            echo "Déploiement du frontend..."
+                            kubectl set image deployment/frontend \
+                                frontend=${ECR_URL}/${APP_NAME}-frontend:${params.IMAGE_TAG} \
+                                -n ${NAMESPACE}
+                            
+                            echo "Déploiement de nginx..."
+                            kubectl set image deployment/nginx \
+                                nginx=${ECR_URL}/${APP_NAME}-nginx:${params.IMAGE_TAG} \
+                                -n ${NAMESPACE}
+                        """
+                    } else {
+                        // Déployer un seul service
+                        sh """
+                            echo "Déploiement de ${params.SERVICE}..."
+                            kubectl set image deployment/${params.SERVICE} \
+                                ${params.SERVICE}=${ECR_URL}/${APP_NAME}-${params.SERVICE}:${params.IMAGE_TAG} \
+                                -n ${NAMESPACE}
+                        """
+                    }
+                }
+            }
+        }
+        
+        stage('Wait for Rollout') {
+            steps {
+                echo "⏳ Attente du déploiement..."
+                script {
+                    def services = params.SERVICE == 'all' ? ['backend', 'frontend', 'nginx'] : [params.SERVICE]
+                    
+                    for (service in services) {
+                        sh """
+                            echo "Attente de ${service}..."
+                            kubectl rollout status deployment/${service} \
+                                -n ${NAMESPACE} \
+                                --timeout=5m
+                        """
+                    }
+                }
+            }
+        }
+        
+        stage('Health Check') {
+            when {
+                expression { !params.SKIP_HEALTH_CHECK }
+            }
+            steps {
+                echo "🏥 Vérification de la santé des services..."
+                script {
+                    // Vérifier les pods
+                    sh """
+                        echo "État des pods:"
+                        kubectl get pods -n ${NAMESPACE}
+                        
+                        echo "Vérification que tous les pods sont Running..."
+                        kubectl get pods -n ${NAMESPACE} -o json | \
+                            jq -e '.items[] | select(.status.phase != "Running")' && \
+                            exit 1 || echo "✅ Tous les pods sont en état Running"
+                    """
+                    
+                    // Tester l'API via port-forward
+                    sh """
+                        echo "Test de l'API..."
+                        kubectl port-forward -n ${NAMESPACE} svc/nginx-service 8080:80 &
+                        PF_PID=\$!
+                        sleep 5
+                        
+                        if curl -f http://localhost:8080/health; then
+                            echo "✅ API répond correctement"
+                        else
+                            echo "❌ API ne répond pas"
+                            kill \$PF_PID
+                            exit 1
+                        fi
+                        
+                        kill \$PF_PID
+                    """
+                }
+            }
+        }
+        
+        stage('Verify Application') {
+            steps {
+                echo "🔍 Vérification post-déploiement..."
+                script {
+                    // Afficher les logs récents
+                    sh """
+                        echo "Dernières lignes des logs backend:"
+                        kubectl logs deployment/backend -n ${NAMESPACE} --tail=10
+                    """
+                    
+                    // Vérifier les métriques de base
+                    sh """
+                        echo "Métriques des pods:"
+                        kubectl top pods -n ${NAMESPACE} || echo "Metrics API non disponible"
+                    """
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo "✅ Déploiement réussi !"
+            script {
+                // Notification Slack
+                slackSend(
+                    channel: '#deployments',
+                    color: 'good',
+                    message: """
+                        ✅ *Déploiement Harivelo réussi*
+                        • Service: ${params.SERVICE}
+                        • Tag: ${params.IMAGE_TAG}
+                        • Environnement: ${NAMESPACE}
+                        • Heure: ${new Date()}
+                    """
+                )
+            }
+        }
+        failure {
+            echo "❌ Échec du déploiement !"
+            script {
+                slackSend(
+                    channel: '#alerts',
+                    color: 'danger',
+                    message: """
+                        ❌ *Échec déploiement Harivelo*
+                        • Service: ${params.SERVICE}
+                        • Tag: ${params.IMAGE_TAG}
+                        • Environnement: ${NAMESPACE}
+                        • Voir logs: ${env.BUILD_URL}
+                    """
+                )
+            }
+        }
+        aborted {
+            echo "⚠️ Déploiement annulé"
+        }
+        always {
+            echo "📊 Pipeline terminé - Build #${env.BUILD_NUMBER}"
+        }
+    }
+}

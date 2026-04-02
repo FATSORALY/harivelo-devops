@@ -1,0 +1,53 @@
+{
+    "nodegroup": {
+        "nodegroupName": "main-node-group",
+        "nodegroupArn": "arn:aws:eks:eu-west-3:240676008744:nodegroup/harivelo-prod-v5/main-node-group/a6ce9544-103b-9929-aa0d-893d57825c10",
+        "clusterName": "harivelo-prod-v5",
+        "version": "1.30",
+        "releaseVersion": "1.30.14-20260304",
+        "createdAt": "2026-03-26T17:24:19.109000+03:00",
+        "modifiedAt": "2026-03-26T17:58:24.751000+03:00",
+        "status": "CREATE_FAILED",
+        "capacityType": "ON_DEMAND",
+        "scalingConfig": {
+            "minSize": 2,
+            "maxSize": 6,
+            "desiredSize": 2
+        },
+        "instanceTypes": [
+            "t3.medium"
+        ],
+        "subnets": [
+            "subnet-0616324f232765b18",
+            "subnet-0ac42b53e33976123"
+        ],
+        "amiType": "AL2023_x86_64_STANDARD",
+        "nodeRole": "arn:aws:iam::240676008744:role/harivelo-eks-node-role",
+        "resources": {
+            "autoScalingGroups": [
+                {
+                    "name": "eks-main-node-group-a6ce9544-103b-9929-aa0d-893d57825c10"
+                }
+            ]
+        },
+        "diskSize": 20,
+        "health": {
+            "issues": [
+                {
+                    "code": "AsgInstanceLaunchFailures",
+                    "message": "Could not launch On-Demand Instances. InvalidParameterCombination - The specified instance type is not eligible for Free Tier. For a list of Free Tier instance types, run 'describe-instance-types' with the filter 'free-tier-eligible=true'. Launching EC2 instance failed.",
+                    "resourceIds": [
+                        "eks-main-node-group-a6ce9544-103b-9929-aa0d-893d57825c10"
+                    ]
+                }
+            ]
+        },
+        "updateConfig": {
+            "maxUnavailable": 1
+        },
+        "tags": {
+            "k8s.io/cluster-autoscaler/enabled": "true",
+            "k8s.io/cluster-autoscaler/harivelo-prod-v5": "owned"
+        }
+    }
+}

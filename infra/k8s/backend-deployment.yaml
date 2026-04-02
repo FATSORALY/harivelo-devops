@@ -1,0 +1,87 @@
+# backend-deployment.yaml modifié avec initContainer
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: harivelo
+      component: backend
+  template:
+    metadata:
+      labels:
+        app: harivelo
+        component: backend
+    spec:
+      initContainers:
+      - name: create-uploads-dir
+        image: busybox:latest
+        command:
+        - sh
+        - -c
+        - |
+          mkdir -p /app/uploads/projects
+          mkdir -p /app/uploads/users
+          mkdir -p /app/uploads/tenders
+          mkdir -p /app/uploads/calculations
+          mkdir -p /app/uploads/images
+          chmod -R 755 /app/uploads
+        volumeMounts:
+        - name: uploads
+          mountPath: /app/uploads
+      containers:
+      - name: backend
+        image: 240676008744.dkr.ecr.eu-west-3.amazonaws.com/harivelo-app-backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "3000"
+        - name: UPLOADS_PATH
+          value: "/app/uploads"
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: backend-config
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: backend-config
+              key: DB_PORT
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: backend-config
+              key: DB_NAME
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: backend-config
+              key: DB_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: DB_PASSWORD
+        volumeMounts:
+        - name: uploads
+          mountPath: /app/uploads
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+      volumes:
+      - name: uploads
+        emptyDir: {}
+      imagePullSecrets:
+      - name: regcred

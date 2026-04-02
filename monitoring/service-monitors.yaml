@@ -1,0 +1,53 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: harivelo-backend
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: harivelo
+      component: backend
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+    - production
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: harivelo-nginx
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: harivelo
+      component: nginx
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+  namespaceSelector:
+    matchNames:
+    - production
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: harivelo-pods
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: harivelo
+  podMetricsEndpoints:
+  - port: http
+    interval: 30s
+    path: /metrics
+  namespaceSelector:
+    matchNames:
+    - production

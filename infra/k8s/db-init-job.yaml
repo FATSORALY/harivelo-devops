@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-init
+  namespace: production
+spec:
+  template:
+    spec:
+      containers:
+      - name: init-db
+        image: postgres:15
+        env:
+        - name: PGPASSWORD
+          value: "VeloAWS123"
+        command:
+        - /bin/sh
+        - -c
+        - |
+          set -e
+          HOST="harivelo-production-postgres.ctm440gqkvel.eu-west-3.rds.amazonaws.com"
+          USER="harivelo_app"
+          DB="harivelo_prod"
+
+          echo "Vérification de la connexion..."
+          psql -h "$HOST" -U "$USER" -d "$DB" -c "SELECT 1"
+
+          echo "Création de la table users..."
+          psql -h "$HOST" -U "$USER" -d "$DB" -c "
+            CREATE TABLE IF NOT EXISTS users (
+              id SERIAL PRIMARY KEY,
+              email VARCHAR(255) UNIQUE NOT NULL,
+              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );"
+
+          echo "Création de la table sessions..."
+          psql -h "$HOST" -U "$USER" -d "$DB" -c "
+            CREATE TABLE IF NOT EXISTS sessions (
+              id SERIAL PRIMARY KEY,
+              user_id INTEGER REFERENCES users(id),
+              token VARCHAR(255) UNIQUE NOT NULL,
+              expires_at TIMESTAMP NOT NULL,
+              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );"
+
+          echo "Vérification des tables..."
+          psql -h "$HOST" -U "$USER" -d "$DB" -c "\dt"
+
+          echo "Base de données initialisée avec succès !"
+      restartPolicy: Never
+  backoffLimit: 2

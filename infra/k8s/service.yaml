@@ -1,0 +1,17 @@
+# infra/k8s/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: harivela-app-service
+  namespace: production
+  labels:
+    app: harivelo-app
+spec:
+  selector:
+    app: harivelo-app
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+    name: http
+  type: ClusterIP

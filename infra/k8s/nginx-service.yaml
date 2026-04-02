@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  namespace: production
+  labels:
+    app: harivelo
+    component: nginx
+spec:
+  selector:
+    app: harivelo
+    component: nginx
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+  type: ClusterIP

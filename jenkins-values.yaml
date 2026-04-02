@@ -1,0 +1,64 @@
+controller:
+  image: jenkins/jenkins:lts-jdk11
+  replicaCount: 1
+  serviceType: LoadBalancer
+  servicePort: 8080
+  servicePortName: http
+  targetPort: 8080
+  nodePort: 32000
+  
+  # Configuration des ressources
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+  
+  # Variables d'environnement pour AWS
+  containerEnv:
+    - name: AWS_REGION
+      value: "eu-west-3"
+    - name: AWS_ACCOUNT_ID
+      value: "240676008744"
+  
+  # Installation des plugins nécessaires
+  installPlugins:
+    - kubernetes:latest
+    - workflow-aggregator:latest
+    - git:latest
+    - docker-workflow:latest
+    - amazon-ecr:latest
+    - pipeline-aws:latest
+    - slack:latest
+    - sonar:latest
+    - blueocean:latest
+  
+  # Configuration des credentials AWS
+  additionalSecrets:
+    - name: aws-credentials
+      secretName: aws-credentials
+      items:
+        - key: credentials
+          path: .aws/credentials
+  
+  # Script d'initialisation
+  initContainerEnv:
+    - name: AWS_REGION
+      value: "eu-west-3"
+
+persistence:
+  enabled: true
+  existingClaim: jenkins-home
+
+serviceAccount:
+  create: true
+  name: jenkins
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::240676008744:role/jenkins-role
+
+# RBAC pour que Jenkins puisse interagir avec Kubernetes
+rbac:
+  create: true
+  serviceAccountName: jenkins

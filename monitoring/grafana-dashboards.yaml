@@ -1,0 +1,170 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  # Dashboard Kubernetes Cluster
+  kubernetes-cluster.json: |
+    {
+      "dashboard": {
+        "title": "Kubernetes Cluster - Harivelo",
+        "uid": "kubernetes-cluster",
+        "timezone": "browser",
+        "panels": [
+          {
+            "title": "CPU Usage",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"production\"}[5m])) by (pod)",
+                "legendFormat": "{{pod}}"
+              }
+            ]
+          },
+          {
+            "title": "Memory Usage",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "sum(container_memory_working_set_bytes{namespace=\"production\"}) by (pod)",
+                "legendFormat": "{{pod}}"
+              }
+            ]
+          },
+          {
+            "title": "Network Traffic",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "sum(rate(container_network_receive_bytes_total{namespace=\"production\"}[5m])) by (pod)",
+                "legendFormat": "RX - {{pod}}"
+              },
+              {
+                "expr": "sum(rate(container_network_transmit_bytes_total{namespace=\"production\"}[5m])) by (pod)",
+                "legendFormat": "TX - {{pod}}"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  
+  # Dashboard Application Metrics
+  application-metrics.json: |
+    {
+      "dashboard": {
+        "title": "Application Metrics - Harivelo",
+        "uid": "application-metrics",
+        "panels": [
+          {
+            "title": "HTTP Requests per Second",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "sum(rate(http_requests_total[5m])) by (method, endpoint)",
+                "legendFormat": "{{method}} - {{endpoint}}"
+              }
+            ]
+          },
+          {
+            "title": "Error Rate (5xx)",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) / sum(rate(http_requests_total[5m])) * 100",
+                "legendFormat": "Error %"
+              }
+            ],
+            "thresholds": [
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          },
+          {
+            "title": "Response Time (P95)",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, endpoint))",
+                "legendFormat": "{{endpoint}}"
+              }
+            ]
+          },
+          {
+            "title": "Database Connections",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "pg_stat_database_numbackends{datname=\"harivelo_prod\"}"
+              }
+            ]
+          },
+          {
+            "title": "Active Users",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "sum(active_users_total)",
+                "legendFormat": "Active Users"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  
+  # Dashboard Business Metrics
+  business-metrics.json: |
+    {
+      "dashboard": {
+        "title": "Business Metrics - Harivelo",
+        "uid": "business-metrics",
+        "panels": [
+          {
+            "title": "Daily Active Users",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "sum(increase(active_users_total[24h]))",
+                "legendFormat": "DAU"
+              }
+            ]
+          },
+          {
+            "title": "Transactions per Day",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "sum(increase(transactions_total[1d]))",
+                "legendFormat": "Transactions"
+              }
+            ]
+          },
+          {
+            "title": "Revenue (€)",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "sum(increase(revenue_euros_total[1d]))",
+                "legendFormat": "Revenue"
+              }
+            ]
+          },
+          {
+            "title": "Conversion Rate",
+            "type": "singlestat",
+            "targets": [
+              {
+                "expr": "(sum(transactions_total) / sum(visitors_total)) * 100",
+                "legendFormat": "Conversion %"
+              }
+            ]
+          }
+        ]
+      }
+    }

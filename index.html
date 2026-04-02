@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harivelo — DevOps Engineer</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  [data-theme="light"] {
+    --bg:       #f8f7f4;
+    --bg2:      #ffffff;
+    --bg3:      #f0ede8;
+    --text:     #1a1916;
+    --muted:    #6b6760;
+    --accent:   #2563eb;
+    --accent2:  #0ea5e9;
+    --green:    #16a34a;
+    --border:   #e5e2dc;
+    --border2:  #ccc9c2;
+    --shadow:   rgba(0,0,0,0.06);
+    --tag-bg:   #eff6ff;
+    --tag-txt:  #1d4ed8;
+  }
+  [data-theme="dark"] {
+    --bg:       #13131a;
+    --bg2:      #1c1c26;
+    --bg3:      #242430;
+    --text:     #eeeef2;
+    --muted:    #8888a0;
+    --accent:   #60a5fa;
+    --accent2:  #38bdf8;
+    --green:    #4ade80;
+    --border:   #2a2a38;
+    --border2:  #3a3a50;
+    --shadow:   rgba(0,0,0,0.3);
+    --tag-bg:   #1e3a5f;
+    --tag-txt:  #93c5fd;
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    line-height: 1.7;
+    transition: background 0.3s, color 0.3s;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top:0; left:0; right:0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 5vw;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .nav-logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: 0.04em;
+  }
+  .nav-logo span { color: var(--accent); }
+  .nav-right { display:flex; align-items:center; gap:2rem; }
+  .nav-links { display:flex; gap:1.75rem; list-style:none; }
+  .nav-links a { font-size:14px; font-weight:500; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  .nav-links a:hover { color:var(--text); }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 3px;
+    cursor: pointer;
+  }
+  .toggle-btn {
+    width:28px; height:28px;
+    border-radius: 50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px;
+    border:none; background:transparent; cursor:pointer;
+    color:var(--muted);
+    transition: background 0.2s;
+  }
+  .toggle-btn.active {
+    background: var(--bg2);
+    color: var(--text);
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 8rem 5vw 5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4rem;
+    align-items: center;
+    width: 100%;
+  }
+  .available-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--green);
+    background: color-mix(in srgb, var(--green) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--green) 25%, transparent);
+    padding: 5px 12px;
+    border-radius: 99px;
+    margin-bottom: 1.5rem;
+  }
+  .dot {
+    width:7px; height:7px;
+    border-radius:50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.4; transform:scale(0.8); }
+  }
+  .hero h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(2.8rem, 5.5vw, 5rem);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+  .hero h1 em { font-style:italic; color:var(--accent); }
+  .hero-role {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+  .hero-desc {
+    font-size: 1.05rem;
+    color: var(--muted);
+    max-width: 480px;
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+  }
+  .hero-btns { display:flex; gap:12px; flex-wrap:wrap; }
+
+  .btn-primary {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:11px 24px;
+    background:var(--accent); color:#fff;
+    font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600;
+    text-decoration:none; border:none; border-radius:8px;
+    cursor:pointer; transition:all 0.2s;
+  }
+  .btn-primary:hover { opacity:0.88; transform:translateY(-1px); }
+  .btn-outline {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:11px 24px;
+    background:transparent; color:var(--text);
+    font-family:'DM Sans',sans-serif; font-size:14px; font-weight:500;
+    text-decoration:none; border:1px solid var(--border2); border-radius:8px;
+    cursor:pointer; transition:all 0.2s;
+  }
+  .btn-outline:hover { border-color:var(--accent); color:var(--accent); }
+
+  /* HERO CARD */
+  .hero-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.75rem;
+    width: 210px;
+    box-shadow: 0 4px 20px var(--shadow);
+  }
+  .hero-avatar {
+    width:52px; height:52px; border-radius:50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Instrument Serif',serif; font-size:22px; color:#fff;
+    margin-bottom:12px;
+  }
+  .hc-name { font-size:14px; font-weight:600; margin-bottom:2px; }
+  .hc-role { font-size:11px; color:var(--muted); margin-bottom:14px; }
+  .hc-stat {
+    display:flex; justify-content:space-between;
+    padding:8px 0; border-top:1px solid var(--border);
+    font-size:11px;
+  }
+  .hc-stat span:first-child { color:var(--muted); }
+  .hc-stat span:last-child { font-weight:600; font-family:'DM Mono',monospace; color:var(--accent); }
+
+  /* SECTIONS */
+  .section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 5rem 5vw;
+    border-top: 1px solid var(--border);
+  }
+  .sec-header { display:flex; align-items:baseline; gap:1rem; margin-bottom:3rem; }
+  .sec-num { font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:0.1em; }
+  .sec-title { font-family:'Instrument Serif',serif; font-size:clamp(1.6rem,3vw,2.4rem); font-weight:400; letter-spacing:-0.01em; }
+
+  /* STACK */
+  .stack-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:10px; }
+  .stack-card {
+    background:var(--bg2); border:1px solid var(--border); border-radius:10px;
+    padding:1.25rem 1rem;
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    transition:all 0.2s; cursor:default;
+  }
+  .stack-card:hover { border-color:var(--accent); box-shadow:0 4px 16px var(--shadow); transform:translateY(-3px); }
+  .stack-emoji { font-size:24px; line-height:1; }
+  .stack-lbl { font-size:12px; font-weight:500; color:var(--text); text-align:center; }
+  .stack-bar { width:100%; height:3px; background:var(--border); border-radius:99px; overflow:hidden; }
+  .stack-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:99px; }
+
+  /* PROJETS */
+  .proj-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:16px; }
+  .proj-card {
+    background:var(--bg2); border:1px solid var(--border); border-radius:12px;
+    padding:1.5rem; transition:all 0.22s;
+    display:flex; flex-direction:column;
+  }
+  .proj-card:hover { border-color:var(--border2); box-shadow:0 6px 24px var(--shadow); transform:translateY(-3px); }
+  .proj-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem; }
+  .proj-num { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:0.1em; }
+  .proj-ico { width:34px; height:34px; background:var(--tag-bg); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:17px; }
+  .proj-title { font-size:15px; font-weight:600; margin-bottom:8px; line-height:1.4; }
+  .proj-desc { font-size:13px; color:var(--muted); line-height:1.7; flex:1; margin-bottom:1.25rem; }
+  .proj-tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:1.25rem; }
+  .tag { font-family:'DM Mono',monospace; font-size:10px; font-weight:500; padding:3px 9px; border-radius:5px; background:var(--tag-bg); color:var(--tag-txt); letter-spacing:0.03em; }
+  .proj-link { font-size:13px; font-weight:600; color:var(--accent); text-decoration:none; display:inline-flex; align-items:center; gap:5px; transition:gap 0.2s; }
+  .proj-link:hover { gap:9px; }
+
+  /* TIMELINE */
+  .timeline { position:relative; padding-left:1.5rem; }
+  .timeline::before { content:''; position:absolute; left:0; top:8px; bottom:8px; width:1px; background:var(--border2); }
+  .tl-item { position:relative; padding-bottom:2.5rem; padding-left:1.5rem; }
+  .tl-item::before {
+    content:''; position:absolute;
+    left:-1.9rem; top:7px;
+    width:9px; height:9px;
+    border-radius:50%;
+    background:var(--bg2); border:2px solid var(--accent);
+  }
+  .tl-date { font-family:'DM Mono',monospace; font-size:11px; color:var(--accent); letter-spacing:0.08em; margin-bottom:5px; }
+  .tl-role { font-size:15px; font-weight:600; margin-bottom:3px; }
+  .tl-company { font-size:13px; color:var(--muted); margin-bottom:8px; }
+  .tl-desc { font-size:13px; color:var(--muted); line-height:1.7; max-width:520px; }
+
+  /* BLOG */
+  .blog-list { display:flex; flex-direction:column; }
+  .blog-item {
+    display:flex; align-items:baseline; gap:1.5rem;
+    padding:1.25rem 0; border-bottom:1px solid var(--border);
+    text-decoration:none; color:var(--text); transition:color 0.2s;
+  }
+  .blog-item:hover { color:var(--accent); }
+  .blog-item:hover .b-arrow { transform:translateX(4px); }
+  .b-date { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:0.08em; flex-shrink:0; width:65px; }
+  .b-title { font-size:15px; font-weight:500; flex:1; line-height:1.5; }
+  .b-chip { font-family:'DM Mono',monospace; font-size:10px; padding:3px 9px; border-radius:5px; background:var(--tag-bg); color:var(--tag-txt); flex-shrink:0; }
+  .b-arrow { color:var(--muted); font-size:14px; transition:transform 0.2s; flex-shrink:0; }
+
+  /* CONTACT */
+  .contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:start; }
+  .contact-desc { font-size:1rem; color:var(--muted); line-height:1.8; margin-bottom:2rem; }
+  .social-list { display:flex; flex-direction:column; gap:8px; }
+  .social-item {
+    display:flex; align-items:center; gap:12px;
+    padding:13px 16px;
+    background:var(--bg2); border:1px solid var(--border); border-radius:10px;
+    text-decoration:none; color:var(--text);
+    font-size:14px; font-weight:500; transition:all 0.2s;
+  }
+  .social-item:hover { border-color:var(--accent); color:var(--accent); }
+  .s-lbl { font-family:'DM Mono',monospace; font-size:10px; color:var(--accent); width:58px; flex-shrink:0; letter-spacing:0.06em; }
+  .contact-form { display:flex; flex-direction:column; gap:12px; }
+  .contact-form input, .contact-form textarea {
+    width:100%; padding:12px 14px;
+    background:var(--bg2); border:1px solid var(--border); border-radius:8px;
+    color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px;
+    outline:none; transition:border-color 0.2s;
+  }
+  .contact-form input:focus, .contact-form textarea:focus { border-color:var(--accent); }
+  .contact-form textarea { resize:vertical; min-height:110px; }
+  .contact-form ::placeholder { color:var(--muted); }
+
+  /* FOOTER */
+  footer {
+    max-width:1100px; margin:0 auto;
+    padding:2rem 5vw; border-top:1px solid var(--border);
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);
+  }
+
+  /* REVEAL */
+  .reveal { opacity:0; transform:translateY(18px); transition:opacity 0.55s ease, transform 0.55s ease; }
+  .reveal.in { opacity:1; transform:none; }
+
+  @media (max-width:768px) {
+    .nav-links { display:none; }
+    .hero-inner { grid-template-columns:1fr; }
+    .hero-card { display:none; }
+    .contact-grid { grid-template-columns:1fr; }
+    footer { flex-direction:column; gap:6px; text-align:center; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">harivelo<span>.dev</span></div>
+  <div class="nav-right">
+    <ul class="nav-links">
+      <li><a href="#stack">Stack</a></li>
+      <li><a href="#projets">Projets</a></li>
+      <li><a href="#cv">Parcours</a></li>
+      <li><a href="#blog">Blog</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="theme-toggle">
+      <button class="toggle-btn active" id="btn-light" onclick="setTheme('light')" title="Clair">☀️</button>
+      <button class="toggle-btn" id="btn-dark" onclick="setTheme('dark')" title="Sombre">🌙</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="available-badge"><div class="dot"></div>Disponible — Freelance & CDI/CDD</div>
+      <h1>Harivelo<br><em>Andrianantoandro</em></h1>
+      <div class="hero-role">DevOps Engineer · Madagascar</div>
+      <p class="hero-desc">J'automatise, déploie et maintiens des infrastructures cloud fiables. Docker, Kubernetes, Terraform, AWS — je construis des systèmes qui tiennent en production.</p>
+      <div class="hero-btns">
+        <a href="#projets" class="btn-primary">Voir mes projets →</a>
+        <a href="#contact" class="btn-outline">Me contacter</a>
+      </div>
+    </div>
+    <div class="hero-card reveal">
+      <div class="hero-avatar">H</div>
+      <div class="hc-name">Harivelo</div>
+      <div class="hc-role">DevOps Engineer Freelance</div>
+      <div class="hc-stat"><span>Expérience</span><span>1–2 ans</span></div>
+      <div class="hc-stat"><span>Cloud</span><span>AWS · GCP</span></div>
+      <div class="hc-stat"><span>Dispo</span><span>Remote ✓</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- STACK -->
+<section class="section" id="stack">
+  <div class="sec-header reveal"><span class="sec-num">01 /</span><h2 class="sec-title">Ma stack technique</h2></div>
+  <div class="stack-grid reveal">
+    <div class="stack-card"><div class="stack-emoji"><img width="48" height="48" src="https://img.icons8.com/fluency/48/docker.png" alt="docker"/></div><div class="stack-lbl">Docker</div><div class="stack-bar"><div class="stack-fill" style="width:82%"></div></div></div>
+    <div class="stack-card"><div class="stack-emoji"><img width="48" height="48" src="https://img.icons8.com/color/48/kubernetes.png" alt="kubernetes"/></div><div class="stack-lbl">Kubernetes</div><div class="stack-bar"><div class="stack-fill" style="width:70%"></div></div></div>
+    <div class="stack-card"><div class="stack-emoji"><img width="48" height="48" src="https://img.icons8.com/color/48/terraform.png" alt="terraform"/></div><div class="stack-lbl">Terraform</div><div class="stack-bar"><div class="stack-fill" style="width:75%"></div></div></div>
+    <div class="stack-card"><div class="stack-emoji"><img width="48" height="48" src="https://img.icons8.com/fluency/48/ansible.png" alt="ansible"/></div><div class="stack-lbl">Ansible</div><div class="stack-bar"><div class="stack-fill" style="width:65%"></div></div></div>
+    <div class="stack-card"><div class="stack-emoji"><img width="48" height="48" src="https://img.icons8.com/color/48/amazon-web-services.png" alt="amazon-web-services"/></div><div class="stack-lbl">AWS</div><div class="stack-bar"><div class="stack-fill" style="width:70%"></div></div></div>
+    <div class="stack-card"><div class="stack-emoji"><img width="48" height="48" src="https://img.icons8.com/fluency/48/azure-1.png" alt="azure-1"/></div><div class="stack-lbl">Azure</div><div class="stack-bar"><div class="stack-fill" style="width:55%"></div></div></div>
+    <div class="stack-card"><div class="stack-emoji"><img width="48" height="48" src="https://img.icons8.com/color/48/google-cloud.png" alt="google-cloud"/></div><div class="stack-lbl"> GCP </div><div class="stack-bar"><div class="stack-fill" style="width:55%"></div></div></div>
+    <div class="stack-card"><div class="stack-emoji"><img width="48" height="48" src="https://img.icons8.com/color/48/gitlab.png" alt="gitlab"/></div><div class="stack-lbl">GitLab CI</div><div class="stack-bar"><div class="stack-fill" style="width:76%"></div></div></div>
+    <div class="stack-card"><div class="stack-emoji"><img width="48" height="48" src="https://img.icons8.com/color/48/jenkins.png" alt="jenkins"/></div><div class="stack-lbl">Jenkins</div><div class="stack-bar"><div class="stack-fill" style="width:68%"></div></div></div>
+    <div class="stack-card"><div class="stack-emoji"><img width="48" height="48" src="https://img.icons8.com/color/48/linux--v1.png" alt="linux--v1"/></div><div class="stack-lbl">Linux</div><div class="stack-bar"><div class="stack-fill" style="width:82%"></div></div></div>
+    <div class="stack-card"><div class="stack-emoji"><img width="48" height="48" src="https://img.icons8.com/fluency/48/prometheus-app.png" alt="prometheus-app"/></div><div class="stack-lbl">Prometheus</div><div class="stack-bar"><div class="stack-fill" style="width:60%"></div></div></div>
+    <div class="stack-card"><div class="stack-emoji"><img width="48" height="48" src="https://img.icons8.com/external-tal-revivo-filled-tal-revivo/48/external-data-visualization-and-monitoring-with-support-for-graphite-and-influxdb-logo-filled-tal-revivo.png" alt="external-data-visualization-and-monitoring-with-support-for-graphite-and-influxdb-logo-filled-tal-revivo"/></div><div class="stack-lbl">Grafana</div><div class="stack-bar"><div class="stack-fill" style="width:60%"></div></div></div>
+  </div>
+</section>
+
+<!-- PROJETS -->
+<section class="section" id="projets">
+  <div class="sec-header reveal"><span class="sec-num">02 /</span><h2 class="sec-title">Projets</h2></div>
+  <div class="proj-grid">
+    <div class="proj-card reveal">
+      <div class="proj-head"><div class="proj-num">01 — CONTAINERISATION</div><div class="proj-ico"></div></div>
+      <div class="proj-title">Déploiement Docker + Kubernetes</div>
+      <div class="proj-desc">Conteneurisation d'une app web multi-services avec Docker Compose en dev, migration vers un cluster Kubernetes en prod avec Helm charts et ingress controller.</div>
+      <div class="proj-tags"><span class="tag">Docker</span><span class="tag">Kubernetes</span><span class="tag">Helm</span><span class="tag">YAML</span></div>
+      <a href="https://github.com/FATSORALY/harivelo-devops" class="proj-link" target="_blank">Voir sur GitHub →</a>
+    </div>
+    <div class="proj-card reveal">
+      <div class="proj-head"><div class="proj-num">02 — CI/CD</div><div class="proj-ico"></div></div>
+      <div class="proj-title">Pipeline CI/CD GitLab</div>
+      <div class="proj-desc">Pipeline complet avec build, tests unitaires, scan de sécurité SAST et déploiement continu sur staging puis production via GitLab CI et Docker.</div>
+      <div class="proj-tags"><span class="tag">GitLab CI</span><span class="tag">Jenkins</span><span class="tag">Docker</span><span class="tag">SonarQube</span></div>
+      <a href="https://github.com/FATSORALY/harivelo-devops" class="proj-link" target="_blank">Voir sur GitHub →</a>
+    </div>
+    <div class="proj-card reveal">
+      <div class="proj-head"><div class="proj-num">03 — IaC</div><div class="proj-ico"></div></div>
+      <div class="proj-title">Infrastructure AWS avec Terraform</div>
+      <div class="proj-desc">Provisionnement d'une infra AWS complète — VPC, EC2, RDS, S3, ALB — via modules Terraform réutilisables et state backend S3 + DynamoDB lock.</div>
+      <div class="proj-tags"><span class="tag">Terraform</span><span class="tag">AWS</span><span class="tag">Ansible</span><span class="tag">IaC</span></div>
+      <a href="https://github.com/FATSORALY/harivelo-devops" class="proj-link" target="_blank">Voir sur GitHub →</a>
+    </div>
+    <div class="proj-card reveal">
+      <div class="proj-head"><div class="proj-num">04 — MIGRATION</div><div class="proj-ico"></div></div>
+      <div class="proj-title">Migration on-premise → AWS</div>
+      <div class="proj-desc">Migration d'une application vers AWS avec architecture multi-AZ, auto-scaling group et monitoring CloudWatch + alerting configuré.</div>
+      <div class="proj-tags"><span class="tag">AWS</span><span class="tag">CloudWatch</span><span class="tag">Terraform</span><span class="tag">Migration</span></div>
+      <a href="https://github.com/FATSORALY/harivelo-devops" class="proj-link" target="_blank">Voir sur GitHub →</a>
+    </div>
+  </div>
+</section>
+
+<!-- PARCOURS -->
+<section class="section" id="cv">
+  <div class="sec-header reveal"><span class="sec-num">03 /</span><h2 class="sec-title">Parcours</h2></div>
+  <div class="timeline reveal">
+    <div class="tl-item">
+      <div class="tl-date">Janvier 2026 — Présent</div>
+      <div class="tl-role">DevOps Engineer Freelance</div>
+      <div class="tl-company">Indépendant · Remote · Madagascar</div>
+      <div class="tl-desc">Missions de conteneurisation, CI/CD et provisionnement d'infrastructures cloud pour des clients variés. Disponible pour poste CDI/CDD.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">En cours</div>
+      <div class="tl-role">Certifications DevOps & Cloud</div>
+      <div class="tl-company">Autodidacte</div>
+      <div class="tl-desc">CKA (Kubernetes), AWS Solutions Architect Associate, Terraform Associate.</div>
+    </div>
+  </div>
+  <br><br>
+  <a href="https://drive.google.com/uc?export=download&id=1BAViprJsKg92p1ocEH4tMZwNgtjk667x" class="btn-primary" download="Mon_CV.pdf">Télécharger le CV PDF →</a>
+</section>
+
+<!-- BLOG -->
+<section class="section" id="blog">
+  <div class="sec-header reveal"><span class="sec-num">04 /</span><h2 class="sec-title">Blog DevOps</h2></div>
+  <div class="blog-list reveal">
+    <a href="blog/jenkins-pipeline.html" class="blog-item">
+      <span class="b-date">Mars 2026</span>
+      <span class="b-title">Jenkins : Maîtrisez les pipelines CI/CD comme un pro</span>
+      <span class="b-chip">Jenkins</span>
+      <span class="b-arrow">→</span>
+    </a>
+    <a href="blog/kubernetes-cluster.html" class="blog-item">
+      <span class="b-date">Mars 2026</span>
+      <span class="b-title">Comment j'ai déployé mon premier cluster Kubernetes from scratch</span>
+      <span class="b-chip">Kubernetes</span>
+      <span class="b-arrow">→</span>
+    </a>
+    <a href="blog/terraform-aws.html" class="blog-item">
+      <span class="b-date">Février 2026</span>
+      <span class="b-title">Terraform en pratique : provisionner AWS en 30 minutes</span>
+      <span class="b-chip">Terraform</span>
+      <span class="b-arrow">→</span>
+    </a>
+    <a href="blog/gitlab-ci-cd.html" class="blog-item">
+      <span class="b-date">Janvier 2026</span>
+      <span class="b-title">CI/CD avec GitLab CI : de zéro à la production</span>
+      <span class="b-chip">CI/CD</span>
+      <span class="b-arrow">→</span>
+    </a>
+    <a href="blog/docker-vs-vm.html" class="blog-item">
+      <span class="b-date">Décembre 2025</span>
+      <span class="b-title">Docker vs VM : ce que j'ai appris en pratique</span>
+      <span class="b-chip">Docker</span>
+      <span class="b-arrow">→</span>
+    </a>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="section" id="contact">
+  <div class="sec-header reveal"><span class="sec-num">05 /</span><h2 class="sec-title">Travaillons ensemble</h2></div>
+  <div class="contact-grid reveal">
+    <div>
+      <p class="contact-desc">Disponible pour des missions freelance et des opportunités CDI/CDD. Contactez-moi pour discuter de vos projets DevOps ou d'infrastructure cloud.</p>
+      <div class="social-list">
+        <a href="https://www.linkedin.com/in/soloharivelo-andrianantoandro-a36469216" class="social-item" target="_blank">
+          <span class="s-lbl">LINKEDIN</span><span>Harivelo Andrianantoandro</span>
+        </a>
+        <a href="https://github.com/FATSORALY" class="social-item" target="_blank">
+          <span class="s-lbl">GITHUB</span><span>FATSORALY</span>
+        </a>
+        <a href="mailto:harivelo.andrianantoandro22@gmail.com" class="social-item">
+          <span class="s-lbl">EMAIL</span><span>harivelo.andrianantoandro22@gmail.com</span>
+        </a>
+      </div>
+    </div>
+    <div class="contact-form">
+      <input type="text" placeholder="Votre nom">
+      <input type="email" placeholder="Votre email">
+      <input type="text" placeholder="Sujet">
+      <textarea placeholder="Votre message..."></textarea>
+      <button class="btn-primary" type="button">Envoyer →</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© 2026 Harivelo Andrianantoandro</span>
+  <span>GitHub Pages</span>
+</footer>
+
+<script>
+  function setTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    document.getElementById('btn-light').classList.toggle('active', t === 'light');
+    document.getElementById('btn-dark').classList.toggle('active', t === 'dark');
+    localStorage.setItem('theme', t);
+  }
+
+  const saved = localStorage.getItem('theme');
+  if (saved) setTheme(saved);
+
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) setTimeout(() => e.target.classList.add('in'), i * 55);
+    });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  window.addEventListener('scroll', () => {
+    document.querySelector('nav').style.boxShadow =
+      window.scrollY > 20 ? '0 1px 12px rgba(0,0,0,0.07)' : 'none';
+  });
+</script>
+</body>
+</html>

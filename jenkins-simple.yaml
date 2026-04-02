@@ -1,0 +1,39 @@
+controller:
+  adminPassword: "admin123"
+  serviceType: LoadBalancer
+  servicePort: 8080
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+  
+  # Installation des plugins essentiels
+  installPlugins:
+    - kubernetes:latest
+    - workflow-aggregator:latest
+    - git:latest
+    - docker-workflow:latest
+    - amazon-ecr:latest
+    - pipeline-aws:latest
+    - blueocean:latest
+  
+  # Variables d'environnement
+  containerEnv:
+    - name: AWS_REGION
+      value: "eu-west-3"
+    - name: JAVA_OPTS
+      value: "-Djenkins.install.runSetupWizard=false"
+
+persistence:
+  enabled: true
+  size: 8Gi
+
+serviceAccount:
+  create: true
+  name: jenkins
+
+rbac:
+  create: true

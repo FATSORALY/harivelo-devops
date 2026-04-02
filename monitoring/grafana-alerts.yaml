@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-alerts
+  namespace: monitoring
+data:
+  alert-rules.yaml: |
+    groups:
+      - name: harivelo-critical
+        rules:
+          - alert: ServiceDown
+            expr: up{job="backend"} == 0
+            for: 1m
+            labels:
+              severity: critical
+              team: platform
+            annotations:
+              summary: "Backend service is down"
+              description: "Backend has been down for more than 1 minute"
+              runbook_url: "https://wiki.harivelo.com/runbooks/service-down"
+          
+          - alert: DatabaseDown
+            expr: pg_up == 0
+            for: 30s
+            labels:
+              severity: critical
+            annotations:
+              summary: "Database is unreachable"
+              description: "Cannot connect to PostgreSQL database"
+          
+          - alert: HighErrorRate
+            expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > 0.1
+            for: 2m
+            labels:
+              severity: critical
+            annotations:
+              summary: "High error rate (>10%)"
+              description: "Error rate is {{ $value }}%"
+          
+          - alert: HighLatency
+            expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 2
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High latency detected"
+              description: "P95 latency is {{ $value }}s"
+          
+          - alert: LowDiskSpace
+            expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 10
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Low disk space"
+              description: "Only {{ $value }}% disk space remaining"
+          
+          - alert: HighCPUUsage
+            expr: sum(rate(container_cpu_usage_seconds_total{namespace="production"}[5m])) > 0.8
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High CPU usage"
+              description: "CPU usage is {{ $value }}%"
+          
+          - alert: MemoryLeak
+            expr: (container_memory_working_set_bytes{namespace="production"} / container_spec_memory_limit_bytes) > 0.9
+            for: 10m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Potential memory leak"
+              description: "Memory usage at {{ $value }}% for 10 minutes"
+          
+          - alert: PodRestarting
+            expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Pod restarting frequently"
+              description: "Pod {{ $labels.pod }} has restarted {{ $value }} times"

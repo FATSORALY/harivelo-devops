@@ -1,0 +1,178 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "8"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"backend","namespace":"production"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"harivelo","component":"backend"}},"template":{"metadata":{"labels":{"app":"harivelo","component":"backend"}},"spec":{"containers":[{"env":[{"name":"NODE_ENV","value":"production"},{"name":"PORT","value":"3000"},{"name":"DB_HOST","valueFrom":{"configMapKeyRef":{"key":"DB_HOST","name":"backend-config"}}},{"name":"DB_PORT","valueFrom":{"configMapKeyRef":{"key":"DB_PORT","name":"backend-config"}}},{"name":"DB_NAME","valueFrom":{"configMapKeyRef":{"key":"DB_NAME","name":"backend-config"}}},{"name":"DB_USER","valueFrom":{"configMapKeyRef":{"key":"DB_USER","name":"backend-config"}}},{"name":"DB_PASSWORD","valueFrom":{"secretKeyRef":{"key":"DB_PASSWORD","name":"backend-secrets"}}}],"image":"240676008744.dkr.ecr.eu-west-3.amazonaws.com/harivelo-app-backend:latest","imagePullPolicy":"Always","livenessProbe":{"httpGet":{"path":"/health","port":3000},"initialDelaySeconds":60,"periodSeconds":10},"name":"backend","ports":[{"containerPort":3000}],"readinessProbe":{"httpGet":{"path":"/health","port":3000},"initialDelaySeconds":30,"periodSeconds":5},"resources":{"limits":{"cpu":"500m","memory":"512Mi"},"requests":{"cpu":"250m","memory":"256Mi"}},"volumeMounts":[{"mountPath":"/app/uploads","name":"uploads"},{"mountPath":"/app/src/uploads","name":"src-uploads"}]}],"imagePullSecrets":[{"name":"regcred"}],"initContainers":[{"command":["sh","-c","echo \"Création des dossiers...\"\nmkdir -p /app/uploads\nmkdir -p /app/uploads/projects\nmkdir -p /app/uploads/users\nmkdir -p /app/uploads/tenders\nmkdir -p /app/uploads/calculations\nmkdir -p /app/uploads/images\nmkdir -p /app/src/uploads\nmkdir -p /app/src/uploads/projects\nmkdir -p /app/src/uploads/users\nmkdir -p /app/src/uploads/tenders\nmkdir -p /app/src/uploads/calculations\nmkdir -p /app/src/uploads/images\necho \"Dossiers créés avec succès\"\nls -la /app/\n"],"image":"busybox:latest","name":"create-uploads-dir","volumeMounts":[{"mountPath":"/app/uploads","name":"uploads"},{"mountPath":"/app/src/uploads","name":"src-uploads"}]}],"securityContext":{"runAsGroup":0,"runAsUser":0},"volumes":[{"emptyDir":{},"name":"uploads"},{"emptyDir":{},"name":"src-uploads"}]}}}}
+  creationTimestamp: "2026-03-26T16:54:06Z"
+  generation: 8
+  name: backend
+  namespace: production
+  resourceVersion: "122739"
+  uid: 00773696-20f7-40a7-96d9-f7639f5ce6ac
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: harivelo
+      component: backend
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2026-03-27T07:03:47+03:00"
+      creationTimestamp: null
+      labels:
+        app: harivelo
+        component: backend
+    spec:
+      containers:
+      - env:
+        - name: NODE_ENV
+          value: production
+        - name: PORT
+          value: "3000"
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              key: DB_HOST
+              name: backend-config
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              key: DB_PORT
+              name: backend-config
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              key: DB_NAME
+              name: backend-config
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              key: DB_USER
+              name: backend-config
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: DB_PASSWORD
+              name: backend-secrets
+        - name: DB_SSL_MODE
+          value: require
+        - name: DB_SSL
+          value: "true"
+        image: 240676008744.dkr.ecr.eu-west-3.amazonaws.com/harivelo-app-backend:latest
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: backend
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 250m
+            memory: 256Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /app/uploads
+          name: uploads
+        - mountPath: /app/src/uploads
+          name: src-uploads
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: regcred
+      initContainers:
+      - command:
+        - sh
+        - -c
+        - |
+          echo "Création des dossiers..."
+          mkdir -p /app/uploads
+          mkdir -p /app/uploads/projects
+          mkdir -p /app/uploads/users
+          mkdir -p /app/uploads/tenders
+          mkdir -p /app/uploads/calculations
+          mkdir -p /app/uploads/images
+          mkdir -p /app/src/uploads
+          mkdir -p /app/src/uploads/projects
+          mkdir -p /app/src/uploads/users
+          mkdir -p /app/src/uploads/tenders
+          mkdir -p /app/src/uploads/calculations
+          mkdir -p /app/src/uploads/images
+          echo "Dossiers créés avec succès"
+          ls -la /app/
+        env:
+        - name: DB_SSL_MODE
+          value: require
+        - name: DB_SSL
+          value: "true"
+        image: busybox:latest
+        imagePullPolicy: Always
+        name: create-uploads-dir
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /app/uploads
+          name: uploads
+        - mountPath: /app/src/uploads
+          name: src-uploads
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        runAsGroup: 0
+        runAsUser: 0
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - emptyDir: {}
+        name: uploads
+      - emptyDir: {}
+        name: src-uploads
+status:
+  conditions:
+  - lastTransitionTime: "2026-03-26T16:54:06Z"
+    lastUpdateTime: "2026-03-26T16:54:06Z"
+    message: Deployment does not have minimum availability.
+    reason: MinimumReplicasUnavailable
+    status: "False"
+    type: Available
+  - lastTransitionTime: "2026-03-27T03:58:46Z"
+    lastUpdateTime: "2026-03-27T04:03:45Z"
+    message: ReplicaSet "backend-7f4f66598d" is progressing.
+    reason: ReplicaSetUpdated
+    status: "True"
+    type: Progressing
+  observedGeneration: 8
+  replicas: 2
+  unavailableReplicas: 2
+  updatedReplicas: 1
