@@ -264,7 +264,7 @@ resource "aws_db_instance" "postgres" {
   deletion_protection     = false
   publicly_accessible     = false
 
-  # Supprimer ces deux lignes — inutiles sans backup
+  
   # backup_window      = "03:00-04:00"
   # maintenance_window = "sun:04:00-sun:05:00"
 
