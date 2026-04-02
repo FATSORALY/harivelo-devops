@@ -1,5 +1,3 @@
-# infra/terraform/main.tf (Version simplifiée - sans data sources)
-
 terraform {
   required_version = ">= 1.0"
   
